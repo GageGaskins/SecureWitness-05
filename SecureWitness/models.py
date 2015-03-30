@@ -6,7 +6,7 @@ class Report(models.Model):
     author = models.CharField
     title = models.CharField
     private = models.BooleanField
-    timestamp = models.DateTimeField.auto_now
+    timestamp = models.DateTimeField('date published')
     short_description = models.CharField(max_length=100)
     long_description = models.CharField(max_length=500)
     #optional
