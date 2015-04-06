@@ -6,9 +6,9 @@ class Report(models.Model):
     author = models.CharField(max_length=120)
     title = models.CharField(max_length=120)
     private = models.BooleanField(default=False)
-    author = models.CharField
-    title = models.CharField
-    private = models.BooleanField
+    author = models.CharField(max_length=30)
+    title = models.CharField(max_length=120)
+    private = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     short_description = models.CharField(max_length=100)
     long_description = models.CharField(max_length=500)
