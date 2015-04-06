@@ -19,5 +19,6 @@ class Admin:
                            keywords, files)
         self.reports.append(newreport)
 
-    def addtogroup(self, user, group):
-        user.groups.append(group)
+    def addtogroup(self, groupname, users):
+        for user in users:
+            user.groups.append(groupname)
