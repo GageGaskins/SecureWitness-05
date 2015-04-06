@@ -33,8 +33,12 @@
                                 <img src="http://placehold.it/100x100" class="circle">
                             </div>
                             <div class="col s9 right">
-                                <h3 class="row">Gage Gaskins</h3>
-                                <h5 class="row">Reader</h5>
+                                <h3 class="row">{{ user.name }}</h3>
+                                {% if user.admin_status %}
+                                    <h5 class="row">Admin</h5>
+                                {% else %}
+                                    <h5 class="row">User</h5>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="row">
@@ -56,10 +60,15 @@
                         </div>
                         <div class="row">
                             <h5>Reports</h5>
-                            <ul class="collection">
-                                <li class="collection-item">Report 1</li>
-                                <li class="collection-item">Report 2</li>
-                            </ul>
+                            {% if user_reports_list %}
+                                <ul class="collection">
+                                    {% for report in user_reports_list %}
+                                    <li class = "collection-item"><a href="{% url 'report' report.id %}">{{ report.title }}</a> </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>You have no reports.</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
