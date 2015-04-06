@@ -12,7 +12,7 @@ class Report(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     short_description = models.CharField(max_length=100)
     long_description = models.CharField(max_length=500)
-    user = models.ForeignKey('User')
+    owner = models.ForeignKey('User')
 
     def __str__(self):
         return self.title
