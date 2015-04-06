@@ -3,9 +3,15 @@ from django.db import models
 # Create your models here.
 
 class Report(models.Model):
+<<<<<<< HEAD
     author = models.CharField(max_length=120)
     title = models.CharField(max_length=120)
     private = models.BooleanField(default=False)
+=======
+    author = models.CharField
+    title = models.CharField
+    private = models.BooleanField
+>>>>>>> dde170b570eb1ab362002a7d88367719f1c5c52c
     timestamp = models.DateTimeField(auto_now_add=True)
     short_description = models.CharField(max_length=100)
     long_description = models.CharField(max_length=500)
