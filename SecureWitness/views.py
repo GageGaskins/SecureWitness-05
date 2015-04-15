@@ -25,7 +25,10 @@ def user(request, user_id):
 
 
 def report(request, report_id):
-    return render(request, 'SecureWitness/report.html', {})
+
+    current_report = get_object_or_404(Report, pk=report_id)
+
+    return render(request, 'SecureWitness/report.html', {"report": current_report})
 
 
 def signup(request):
@@ -80,6 +83,9 @@ def create_report(request, user_id):
         author = request.POST['author']
         short = request.POST['short_description']
         long = request.POST['long_description']
+        location = request.POST.get('location', "")
+        keywords = request.POST.get('keywords', "")
+        report_date = request.POST.get('report_date', "")
         private = False
 
         if 'private' in request.POST:
@@ -87,16 +93,10 @@ def create_report(request, user_id):
 
         user = get_object_or_404(User, pk=user_id)
 
-        try:
-            user_reports_list = Report.objects.filter(owner=user_id)
-        except:
-            user_reports_list = None
-
-        report_new = Report(title=title, author=author, short_description=short, long_description=long, private=private, owner=user)
+        report_new = Report(title=title, author=author, short_description=short, long_description=long, private=private,
+                            location=location, keywords=keywords,report_date=report_date, owner=user)
         report_new.save()
 
-        context = {'user_reports_list': user_reports_list, "user": user}
-
-        return render(request, 'SecureWitness/user.html', context)
+        return HttpResponseRedirect(reverse('user', args=(user.id,)))
 
     return render(request, 'SecureWitness/user.html', {'create_error': 'Error in creating report'})
