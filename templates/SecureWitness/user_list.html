@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.95.3/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.95.3/js/materialize.min.js"></script>
+</head>
+<body>
+<div class="navbar-fixed">
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Secure Witness</a>
+            <form action="{% url 'search' %}" method="post">
+                {% csrf_token %}
+                <div class="input-field right">
+                    <input id="search" type="text" name="search" required>
+                    <label for="search"><i class="mdi-action-search"></i></label>
+                    <i class="mdi-navigation-close"></i>
+                </div>
+            </form>
+        </div>
+    </nav>
+</div>
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+                <div class="container">
+                    {% if users %}
+                        <h5>Pick a user to make an Admin</h5>
+                        <ul class="collection">
+                            {% for person in users %}
+                            <li class = "collection-item black-text">
+                                {{ person.name }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="center">No users to make Admins.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

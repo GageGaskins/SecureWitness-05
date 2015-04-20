@@ -15,5 +15,6 @@ urlpatterns = patterns('',
     url(r'^search', views.search, name='search'),
     url(r'^list/$', views.list, name='list'),
     url(r'^documents/(?P<docname>\w+)/', views.get_doc, name='get_doc'),
+    url(r'^user/make_admin/', views.user_list, name='make_admin'),
 )
 

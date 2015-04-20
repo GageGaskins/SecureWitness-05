@@ -154,6 +154,11 @@ def make_admin(request, user_id):
 
     new_admin.admin_status = True
 
+
+def user_list(request):
+    users = User.objects.filter(admin_status=False)
+    return render(request, 'SecureWitness/user_list.html', {'users': users})
+
 def add_to_group(request, group_id, user_id):
     new_member = get_object_or_404(User, pk=user_id)
     destination = get_object_or_404(Group, pk=group_id)
