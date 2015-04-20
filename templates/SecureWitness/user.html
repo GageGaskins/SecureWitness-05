@@ -12,11 +12,12 @@
     <nav>
         <div class="nav-wrapper">
             <a href="#" class="brand-logo">Secure Witness</a>
-
-            <form>
+            <form action="{% url 'search' %}" method="post">
+                {% csrf_token %}
                 <div class="input-field right">
-                    <input id="search" type="text" required>
+                    <input id="search" type="text" name="search" required>
                     <label for="search"><i class="mdi-action-search"></i></label>
+                    <i class="mdi-navigation-close"></i>
                 </div>
             </form>
         </div>
@@ -29,10 +30,7 @@
                 <div class="col offset-l1 l10 s12 white z-depth-1">
                     <div class="container">
                         <div class="row">
-                            <div class="col s3" style="margin-top: 20px;">
-                                <img src="http://placehold.it/100x100" class="circle">
-                            </div>
-                            <div class="col s9 right">
+                            <div class="left">
                                 <h3 class="row">{{ user.name }}</h3>
                                 {% if user.admin_status %}
                                     <h5 class="row">Admin</h5>
@@ -52,7 +50,7 @@
                             {% else %}
                                 <p>You have no reports.</p>
                             {% endif %}
-                        <a class="btn" href="{% url 'new_report' user.id %}">New Report</a>
+                        <a class="btn" href="{% url 'new_report' %}">New Report</a>
                         </div>
                     </div>
                 </div>
