@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from django.template import RequestContext, loader
 from django.http import HttpResponse
 
-from .models import Report, User, Document
+from .models import Report, User, Document, Group
 from .forms import DocumentForm
 
 # Create your views here.
@@ -147,3 +147,16 @@ def get_doc(request, docname):
     response = HttpResponse(content_type='application/force-download')
     response['Content-Disposition'] = 'attachment; filename=' + docname
     return response
+
+def make_admin(request, user_id):
+
+    new_admin = get_object_or_404(User, pk=user_id)
+
+    new_admin.admin_status = True
+
+def add_to_group(request, group_id, user_id):
+    new_member = get_object_or_404(User, pk=user_id)
+    destination = get_object_or_404(Group, pk=group_id)
+
+    destination.users.add(new_member)
+    return render(request, 'SecureWitness/user.html', {'create_error': 'Error in creating report'})
