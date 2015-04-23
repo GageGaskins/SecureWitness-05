@@ -1,62 +1,43 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>User Profile</title>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.95.3/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.95.3/js/materialize.min.js"></script>
-</head>
-<body>
-<div class="navbar-fixed">
-    <nav>
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Secure Witness</a>
-            <form action="{% url 'search' %}" method="post">
-                {% csrf_token %}
-                <div class="input-field right">
-                    <input id="search" type="text" name="search" required>
-                    <label for="search"><i class="mdi-action-search"></i></label>
-                    <i class="mdi-navigation-close"></i>
-                </div>
-            </form>
-        </div>
-    </nav>
-</div>
-<main>
-    <div class="container">
-        <div class="section">
-            <div class="row">
-                <div class="col offset-l1 l10 s12 white z-depth-1">
-                    <div class="container">
-                        <div class="row">
-                            <div class="left">
-                                <h3 class="row">{{ user.name }}</h3>
-                                {% if user.admin_status %}
-                                    <h5 class="row">Admin</h5>
-                                {% else %}
-                                    <h5 class="row">User</h5>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <h5>Reports</h5>
-                            {% if user_reports_list %}
-                                <ul class="collection">
-                                    {% for report in user_reports_list %}
-                                    <li class = "collection-item"><a href="{% url 'report' report.id %}">{{ report.title }}</a> </li>
-                                    {% endfor %}
-                                </ul>
+{% extends 'SecureWitness/loggedinbase.html' %}
+{% block main %}
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+                <div class="container">
+                    <div class="row">
+                        <div class="left">
+                            <h3 class="row">{{ user.name }}</h3>
+                            {% if user.admin_status %}
+                                <h5 class="row">Admin</h5>
                             {% else %}
-                                <p>You have no reports.</p>
+                                <h5 class="row">User</h5>
                             {% endif %}
-                        <a class="btn" href="{% url 'new_report' %}">New Report</a>
                         </div>
                     </div>
+                    <div class="row">
+                        <h5>Reports</h5>
+                        {% if user_reports_list %}
+                            <ul class="collection">
+                                {% for report in user_reports_list %}
+                                <li class = "collection-item"><a href="{% url 'report' report.id %}">{{ report.title }}</a> </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>You have no reports.</p>
+                        {% endif %}
+                    <a class="btn" href="{% url 'new_report' %}">New Report</a>
+                    </div>
+                    {% if user.admin_status %}
+                        <div class="row">
+                            <h5>Admin Functions</h5>
+
+                            <a class="btn" href="{% url 'make_admin_list' %}">Make Admin</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</main>
-</body>
-</html>
+</div>
+{% endblock %}

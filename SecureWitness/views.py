@@ -32,7 +32,46 @@ def report(request, report_id):
 
     current_report = get_object_or_404(Report, pk=report_id)
 
-    return render(request, 'SecureWitness/report.html', {"report": current_report})
+    user = request.session['curr_user']
+
+    return render(request, 'SecureWitness/report.html', {"report": current_report, 'user': user})
+
+def edit_report_page(request, report_id):
+
+    current_report = get_object_or_404(Report, pk=report_id)
+
+    return render(request, 'SecureWitness/edit_report_page.html', {'report': current_report})
+
+def update_report(request, report_id):
+
+    if request.method == "POST":
+        title = request.POST['title']
+        author = request.POST['author']
+        short = request.POST['short_description']
+        long = request.POST['long_description']
+        location = request.POST.get('location', "")
+        keywords = request.POST.get('keywords', "")
+        report_date = request.POST.get('report_date', "")
+        private = False
+
+        if 'private' in request.POST:
+            private = request.POST['private']
+
+        updated_report = Report.objects.get(pk=report_id)
+
+        updated_report.title = title
+        updated_report.author = author
+        updated_report.short_description = short
+        updated_report.long_description = long
+        updated_report.location = location
+        updated_report.keywords = keywords
+        updated_report.report_date = report_date
+        updated_report.private = private
+        updated_report.save()
+
+        return HttpResponseRedirect(reverse('report', args=(report_id,)))
+
+    return HttpResponseRedirect(reverse('report', args=(report_id,)))
 
 
 def signup(request):
@@ -48,7 +87,8 @@ def signup(request):
             password = SHA256.new(b'password').hexdigest()
             new_user = User(name=name, email=email, password=password)
             new_user.save()
-            request.session['curr_user'] = new_user
+            user_info = model_to_dict(new_user)
+            request.session['curr_user'] = user_info
             return HttpResponseRedirect(reverse('user'))
 
 
@@ -67,8 +107,8 @@ def login(request):
             user_info = model_to_dict(temp_user)
             request.session['curr_user'] = user_info
             return HttpResponseRedirect(reverse('user'))
-
-        return render(request, 'SecureWitness/index.html', {})
+        else:
+            return render(request, 'SecureWitness/index.html', {'login_error_message': "Invalid login."})
 
 
 def new_report(request):
@@ -106,13 +146,14 @@ def create_report(request):
 
 def search(request):
     if request.method == 'POST':
-        query = request.POST['search']
+        query = request.POST['search'].lower()
         terms = query.split(" ")
         all_reports = Report.objects.all()
         returned_reports = []
 
         for report in all_reports:
             title = report.title.split(" ")
+            title = [x.lower() for x in title]
             if set(terms).intersection(title):
                 returned_reports.append(report)
 
@@ -148,11 +189,6 @@ def get_doc(request, docname):
     response['Content-Disposition'] = 'attachment; filename=' + docname
     return response
 
-def make_admin(request, user_id):
-
-    new_admin = get_object_or_404(User, pk=user_id)
-
-    new_admin.admin_status = True
 
 def add_to_group(request, group_id, user_id):
     new_member = get_object_or_404(User, pk=user_id)
@@ -160,3 +196,25 @@ def add_to_group(request, group_id, user_id):
 
     destination.users.add(new_member)
     return render(request, 'SecureWitness/user.html', {'create_error': 'Error in creating report'})
+
+
+def make_admin_list(request):
+    users = User.objects.filter(admin_status=False)
+    return render(request, 'SecureWitness/make_admin_list.html', {'users': users})
+
+
+def make_admin(request, user_id):
+
+    new_admin = get_object_or_404(User, pk=user_id)
+    print(new_admin.name)
+    new_admin.admin_status = True
+    new_admin.save()
+
+    return HttpResponseRedirect(reverse('user'))
+
+def logout(request):
+
+    request.session.flush()
+
+    return HttpResponseRedirect(reverse('index'))
+

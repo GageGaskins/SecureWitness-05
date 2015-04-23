@@ -1,68 +1,52 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>User Profile</title>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.95.3/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.95.3/js/materialize.min.js"></script>
-</head>
-<body>
-<div class="navbar-fixed">
-    <nav>
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Secure Witness</a>
-
-            <form>
-                <div class="input-field right">
-                    <input id="search" type="text" required>
-                    <label for="search"><i class="mdi-action-search"></i></label>
-                </div>
-            </form>
-        </div>
-    </nav>
-</div>
-<main>
-    <div class="container">
-        <div class="section">
-            <div class="row">
-                <div class="col offset-l1 l10 s12 white z-depth-1">
-                    <div class="container" style="width: 100%">
-                        <div class="row">
-                            <div class="col s10">
-                                <h3>{{ report.title }}</h3>
-                                <h5>{{ report.author }}</h5>
-                                {% if report.report_date %}
-                                    <h6>{{ report.report_date }}</h6>
-                                {% else %}
-                                    <h6>Unkown date of incident</h6>
-                                {% endif %}
-                                {% if report.location %}
-                                    <h6>{{ report.location }}</h6>
-                                {% else %}
-                                    <h6>Unknown Location</h6>
-                                {% endif %}
-                            </div>
-                            <div class="col s2 right" style="font-weight: 100; margin-top: 10px;">{{ report.timestamp }}</div>
+{% extends 'SecureWitness/loggedinbase.html' %}
+{% block main %}
+<div class="container">
+    <div class="section">
+        <div class="row">
+        {% if report.private %}
+            <div class="col offset-l1 l10 s12 blue-grey white-text z-depth-1">
+        {% else %}
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+        {% endif %}
+                <div class="container" style="width: 100%">
+                    <div class="row">
+                        <div class="col s10">
+                            <h3>{{ report.title }}</h3>
+                            <h5>{{ report.author }}</h5>
+                            {% if report.report_date %}
+                                <h6>{{ report.report_date }}</h6>
+                            {% else %}
+                                <h6>Unkown date of incident</h6>
+                            {% endif %}
+                            {% if report.location %}
+                                <h6>{{ report.location }}</h6>
+                            {% else %}
+                                <h6>Unknown Location</h6>
+                            {% endif %}
                         </div>
-                        <div class="divider"></div>
-                        <div class="row">
-                            <h5><strong>About Report</strong></h5>
-                            {{ report.short_description }}
-                        </div>
-                        <div class="divider"></div>
-                        <div class="row">
-                            <h5><strong>Description</strong></h5>
-                            {{ report.long_description }}
-                        </div>
-                        <div class="row" style="font-weight: 300;">
-                            Keywords: {{ report.keywords }}
-                        </div>
+                        <div class="col s2 right" style="font-weight: 100; margin-top: 10px;">{{ report.timestamp }}</div>
                     </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <h5><strong>About Report</strong></h5>
+                        {{ report.short_description }}
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row">
+                        <h5><strong>Description</strong></h5>
+                        {{ report.long_description }}
+                    </div>
+                    <div class="row" style="font-weight: 300;">
+                        Keywords: {{ report.keywords }}
+                    </div>
+                    {% if report.owner.id == user.id %}
+                        <div class="row">
+                            <a class="btn" href="{% url 'edit_report_page' report.id %}">Edit</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</main>
-</body>
-</html>
+</div>
+{% endblock %}
