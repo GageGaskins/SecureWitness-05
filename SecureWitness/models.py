@@ -14,6 +14,7 @@ class User(models.Model):
 class Group(models.Model):
     name = models.CharField(max_length=80)
     users = models.ManyToManyField(User)
+    reports = models.ManyToManyField(Report)
 
     def __str__(self):
         return self.name
@@ -29,7 +30,6 @@ class Report(models.Model):
     report_date = models.CharField(max_length=120, default="")
     keywords = models.CharField(max_length=256, default="")
     owner = models.ForeignKey('User')
-    allowedgroups = models.ManyToManyField(Group)
 
     def __str__(self):
         return self.title
@@ -41,3 +41,8 @@ class Document(models.Model):
 class Comment(models.Model):
     text = models.CharField(max_length=1024, default="")
     report = models.ForeignKey('Report', default="")
+
+
+class Folder(model.Model):
+    owner = models.CharField(max_length=120)
+    title = models.CharField(max_length=120)
