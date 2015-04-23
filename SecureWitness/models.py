@@ -36,3 +36,8 @@ class Report(models.Model):
 
 class Document(models.Model):
     docfile = models.FileField(upload_to='documents/')
+
+
+class Comment(models.Model):
+    text = models.CharField(max_length=1024, default="")
+    report = models.ForeignKey('Report', default="")
