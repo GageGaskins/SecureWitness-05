@@ -118,6 +118,7 @@ def search(request):
 
     return render(request, 'SecureWitness/search.html', {'reports': returned_reports})
 
+
 def list(request):
     # Handle file upload
     if request.method == 'POST':
@@ -127,7 +128,7 @@ def list(request):
             newdoc.save()
 
             # Redirect to the document list after POST
-            return HttpResponseRedirect(reverse('list'))
+            return HttpResponseRedirect(reverse('myapp'))
     else:
         form = DocumentForm() # A empty, unbound form
 
@@ -142,11 +143,13 @@ def list(request):
     )
 
 
-def get_doc(request, docname):
-
-    response = HttpResponse(content_type='application/force-download')
-    response['Content-Disposition'] = 'attachment; filename=' + docname
+def get_doc(request, doc_id):
+    doc = Document.objects.get(pk=doc_id)
+    doc1=doc.docfile
+    response = HttpResponse(doc1, content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename=' + doc_id
     return response
+
 
 def make_admin(request, user_id):
 
