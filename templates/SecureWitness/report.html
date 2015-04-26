@@ -1,13 +1,13 @@
 {% extends 'SecureWitness/loggedinbase.html' %}
 {% block main %}
-<div class="container">
-    <div class="section">
-        <div class="row">
-        {% if report.private %}
-            <div class="col offset-l1 l10 s12 blue-grey white-text z-depth-1">
-        {% else %}
-            <div class="col offset-l1 l10 s12 white z-depth-1">
-        {% endif %}
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                {% if report.private %}
+                    <div class="col offset-l1 l10 s12 blue-grey white-text z-depth-1">
+                {% else %}
+                    <div class="col offset-l1 l10 s12 white z-depth-1">
+                {% endif %}
                 <div class="container" style="width: 100%">
                     <div class="row">
                         <div class="col s10">
@@ -16,7 +16,7 @@
                             {% if report.report_date %}
                                 <h6>{{ report.report_date }}</h6>
                             {% else %}
-                                <h6>Unkown date of incident</h6>
+                                <h6>Unknown date of incident</h6>
                             {% endif %}
                             {% if report.location %}
                                 <h6>{{ report.location }}</h6>
@@ -24,7 +24,8 @@
                                 <h6>Unknown Location</h6>
                             {% endif %}
                         </div>
-                        <div class="col s2 right" style="font-weight: 100; margin-top: 10px;">{{ report.timestamp }}</div>
+                        <div class="col s2 right"
+                             style="font-weight: 100; margin-top: 10px;">{{ report.timestamp }}</div>
                     </div>
                     <div class="divider"></div>
                     <div class="row">
@@ -45,8 +46,57 @@
                         </div>
                     {% endif %}
                 </div>
+                </div>
+                </div>
+                <div class="row">
+                    <div class="col offset-l1 l10 s12 white">
+                        <div class="row">
+                            <div class="card{% if report.private %} blue-grey {% endif %}" style="margin-bottom: 0px;">
+                                <div class="card-content">
+                                    <div class="card-title col s10 {% if not report.private %}black-text{% endif %}">
+                                        Write A Comment
+                                    </div>
+                                    <div>
+                                        <form action="{% url 'make_comment' report.id %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="comment_text"
+                                                   class="{% if report.private %}white-text{% else %}black-text{% endif %}">
+                                            <button class="btn right" type="submit">Submit Comment</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    {% if comments %}
+                        <div class="col offset-l1 l10 s12 white">
+                            {% for comment in comments %}
+                                <div class="row" style="margin-bottom: 0px;">
+                                    <div class="card {% if report.private %} blue-grey {% endif %}"
+                                         style="margin-bottom: 0px;">
+                                        <div class="card-content {% if report.private %}white-text{% else %}black-text{% endif %}">
+                                            <div class="row">
+                                                <div class="card-title col s10">
+                                                    <a href="{% url 'report' report.id %}">{{ comment.owner.name }}</a>
+                                                </div>
+                                                <div class="col s2 right" style="font-weight: 200;">
+                                                    {{ comment.timestamp }}
+                                                </div>
+                                            </div>
+                                            {{ comment.text }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="card-panel col offset-l1 l10 s12"><h5>No Comments</h5></div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
-</div>
+    </div>
 {% endblock %}

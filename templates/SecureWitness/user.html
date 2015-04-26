@@ -28,6 +28,18 @@
                         {% endif %}
                     <a class="btn" href="{% url 'new_report' %}">New Report</a>
                     </div>
+                    <div class="row">
+                        <h5>Groups</h5>
+                        {% if groups %}
+                            <ul class="collection">
+                                {% for group in groups %}
+                                <li class = "collection-item"><a href="{% url 'group' group.id %}">{{ group.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>You aren't in any groups.</p>
+                        {% endif %}
+                    </div>
                     {% if user.admin_status %}
                         <div class="row">
                             <h5>Admin Functions</h5>

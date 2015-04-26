@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from django.template import RequestContext, loader
 from django.http import HttpResponse
 
-from .models import Report, User, Document, Group
+from .models import Report, User, Document, Group, Comment
 from .forms import DocumentForm
 
 # Create your views here.
@@ -24,26 +24,73 @@ def user(request):
     except:
         user_reports_list = None
 
-    context = {'user_reports_list': user_reports_list, "user": user}
+    user_groups = User.objects.get(pk=user['id']).group_set.all()
+
+    context = {'user_reports_list': user_reports_list, "user": user, 'groups': user_groups}
     return render(request, 'SecureWitness/user.html', context)
 
 
-def report(request, report_id):
+def group(request, group_id):
+    curr_group = get_object_or_404(Group, pk=group_id)
+    group_info = model_to_dict(curr_group)
+    group_reports = curr_group.reports.all()
 
+    curr_user = request.session['curr_user']
+
+    share_reports = Report.objects.all()
+
+    for report in group_reports:
+        share_reports = share_reports.exclude(pk=report.id)
+
+    group_users = curr_group.users.exclude(pk=curr_user['id'])
+
+    add_users = User.objects.all()
+    filter_users = curr_group.users.all()
+
+    for user in filter_users:
+        add_users = add_users.exclude(pk=user.id)
+
+    context = {'group': group_info, 'reports': group_reports, 'users': group_users, 'share_reports': share_reports,
+               'add_users': add_users}
+    return render(request, 'SecureWitness/group.html', context)
+
+
+def group_share_report(request, group_id, report_id):
+    shared_report = get_object_or_404(Report, pk=report_id)
+    print(shared_report)
+    destination = get_object_or_404(Group, pk=group_id)
+
+    print(destination)
+
+    destination.reports.add(shared_report)
+
+    return HttpResponseRedirect(reverse('group', args=(group_id,)))
+
+
+def group_add_user(request, group_id, user_id):
+    new_member = get_object_or_404(User, pk=user_id)
+    destination = get_object_or_404(Group, pk=group_id)
+
+    destination.users.add(new_member)
+    return HttpResponseRedirect(reverse('group', args=(group_id,)))
+
+
+def report(request, report_id):
     current_report = get_object_or_404(Report, pk=report_id)
+    report_comments = Comment.objects.filter(report=report_id).order_by('timestamp')
 
     user = request.session['curr_user']
+    context = {"report": current_report, 'user': user, 'comments': report_comments}
+    return render(request, 'SecureWitness/report.html', context)
 
-    return render(request, 'SecureWitness/report.html', {"report": current_report, 'user': user})
 
 def edit_report_page(request, report_id):
-
     current_report = get_object_or_404(Report, pk=report_id)
 
     return render(request, 'SecureWitness/edit_report_page.html', {'report': current_report})
 
-def update_report(request, report_id):
 
+def update_report(request, report_id):
     if request.method == "POST":
         title = request.POST['title']
         author = request.POST['author']
@@ -68,6 +115,24 @@ def update_report(request, report_id):
         updated_report.report_date = report_date
         updated_report.private = private
         updated_report.save()
+
+        return HttpResponseRedirect(reverse('report', args=(report_id,)))
+
+    return HttpResponseRedirect(reverse('report', args=(report_id,)))
+
+
+def make_comment(request, report_id):
+    if request.method == "POST":
+        comment_text = request.POST['comment_text']
+
+        user_info = request.session['curr_user']
+        curr_id = user_info['id']
+
+        commenter = get_object_or_404(User, pk=curr_id)
+        curr_report = get_object_or_404(Report, pk=report_id)
+
+        comment = Comment(text=comment_text, report=curr_report, owner=commenter)
+        comment.save()
 
         return HttpResponseRedirect(reverse('report', args=(report_id,)))
 
@@ -112,12 +177,10 @@ def login(request):
 
 
 def new_report(request):
-
     return render(request, 'SecureWitness/new_report.html', {})
 
 
 def create_report(request):
-
     if request.method == 'POST':
         title = request.POST['title']
         author = request.POST['author']
@@ -159,18 +222,19 @@ def search(request):
 
     return render(request, 'SecureWitness/search.html', {'reports': returned_reports})
 
+
 def list(request):
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            newdoc = Document(docfile = request.FILES['docfile'])
+            newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
 
             # Redirect to the document list after POST
             return HttpResponseRedirect(reverse('list'))
     else:
-        form = DocumentForm() # A empty, unbound form
+        form = DocumentForm()  # A empty, unbound form
 
     # Load documents for the list page
     documents = Document.objects.all()
@@ -184,18 +248,9 @@ def list(request):
 
 
 def get_doc(request, docname):
-
     response = HttpResponse(content_type='application/force-download')
     response['Content-Disposition'] = 'attachment; filename=' + docname
     return response
-
-
-def add_to_group(request, group_id, user_id):
-    new_member = get_object_or_404(User, pk=user_id)
-    destination = get_object_or_404(Group, pk=group_id)
-
-    destination.users.add(new_member)
-    return render(request, 'SecureWitness/user.html', {'create_error': 'Error in creating report'})
 
 
 def make_admin_list(request):
@@ -204,7 +259,6 @@ def make_admin_list(request):
 
 
 def make_admin(request, user_id):
-
     new_admin = get_object_or_404(User, pk=user_id)
     print(new_admin.name)
     new_admin.admin_status = True
@@ -212,8 +266,8 @@ def make_admin(request, user_id):
 
     return HttpResponseRedirect(reverse('user'))
 
-def logout(request):
 
+def logout(request):
     request.session.flush()
 
     return HttpResponseRedirect(reverse('index'))

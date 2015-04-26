@@ -1,0 +1,72 @@
+{% extends 'SecureWitness/loggedinbase.html' %}
+{% block main %}
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+                <div class="container">
+                    <div class="row">
+                        <div class="left">
+                            <h3 class="row">{{ group.name }}</h3>
+                            <h5>Group</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <h5>Reports</h5>
+                        {% if reports %}
+                            <ul class="collection">
+                                {% for report in reports %}
+                                <li class = "collection-item"><a href="{% url 'report' report.id %}">{{ report.title }}</a> </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>This group has no shared reports.</p>
+                        {% endif %}
+                    {% if share_reports %}
+                        <div class="collapsible" data-collapsible="accordion">
+                            <div class="collapsible-header"><i class="mdi-action-list"></i>Share Report</div>
+                            <div class="collapsible-body">
+                                <ul>
+                                    {% for report in share_reports %}
+                                        <li class = "collection-item"><a href="{% url 'group_share_report' group.id report.id %}">{{ report.title }}</a> </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% else %}
+                        <h6>You have no report to share.</h6>
+                    {% endif %}
+                    </div>
+                    <div class="row">
+                        <h5>Users</h5>
+                        {% if users %}
+                            <ul class="collection">
+                                {% for user in users %}
+                                <li class="collection-item">{{ user.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>There are no other users in this group.</p>
+                        {% endif %}
+                        {% if add_users %}
+                            <div class="collapsible" data-collapsible="accordion">
+                                <div class="collapsible-header"><i class="mdi-action-list"></i>Share Report</div>
+                                <div class="collapsible-body">
+                                    <ul>
+                                        {% for user in add_users %}
+                                            <li style="margin-left: 5px;"><a href="{% url 'group_add_user' group.id user.id %}">{{ user.name }}</a></li>
+                                            <div class="divider" style="margin-bottom: 5px;"></div>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% else %}
+                            <h6>There are no users to add to this group.</h6>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
