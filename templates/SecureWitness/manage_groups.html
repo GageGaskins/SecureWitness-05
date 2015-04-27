@@ -1,0 +1,26 @@
+{% extends 'SecureWitness/loggedinbase.html' %}
+{% block main %}
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+                <div class="container">
+                    {% if groups %}
+                        <h5>Pick a Group</h5>
+                        <ul class="collection">
+                            {% for group in groups %}
+                            <li class = "collection-item black-text">
+                                <a href="{% url 'group' group.id %}">{{ group.name }}</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="center">No Groups.</p>
+                    {% endif %}
+                    <a class="btn" href="{% url 'new_group' %}">Make Group</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

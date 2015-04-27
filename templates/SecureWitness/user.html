@@ -1,55 +1,75 @@
 {% extends 'SecureWitness/loggedinbase.html' %}
 {% block main %}
-<div class="container">
-    <div class="section">
-        <div class="row">
-            <div class="col offset-l1 l10 s12 white z-depth-1">
-                <div class="container">
-                    <div class="row">
-                        <div class="left">
-                            <h3 class="row">{{ user.name }}</h3>
-                            {% if user.admin_status %}
-                                <h5 class="row">Admin</h5>
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                <div class="col offset-l1 l10 s12 white z-depth-1">
+                    <div class="container">
+                        <div class="row">
+                            <div class="left">
+                                <h3 class="row">{{ user.name }}</h3>
+                                {% if user.admin_status %}
+                                    <h5 class="row">Admin</h5>
+                                {% else %}
+                                    <h5 class="row">User</h5>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            {% if folders %}
+                                <h5>Folders</h5>
+                                <ul class="collapsible" data-collapsible="accordion">
+                                {% for folder in folders %}
+                                    <li>
+                                        <div class="collapsible-header"><i class="mdi-action-list"></i>{{ folder.name }}</div>
+                                        <div class="collapsible-body">
+                                            <ul>
+                                                {% for report in folder.reports.all %}
+                                                    <li style="margin-left: 5px"><a href="{% url 'report' report.id %}">{{ report.title }}</a> </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                                <a class="btn" href="{% url 'manage_folders' %}">Manage Folders</a>
+                            {% endif %}
+                            {% if user_reports_list %}
+                                <h5>Unorganized Reports</h5>
+                                <ul class="collection">
+                                    {% for report in user_reports_list %}
+                                        <li class="collection-item"><a href="{% url 'report' report.id %}">{{ report.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
                             {% else %}
-                                <h5 class="row">User</h5>
+                                <h5>Unorganized Reports</h5>
+                                <h6>All reports are in files.</h6>
+                            {% endif %}
+                            <a class="btn" href="{% url 'new_report' %}">New Report</a>
+                        </div>
+                        <div class="row">
+                            <h5>Groups</h5>
+                            {% if groups %}
+                                <ul class="collection">
+                                    {% for group in groups %}
+                                        <li class="collection-item"><a
+                                                href="{% url 'group' group.id %}">{{ group.name }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>You aren't in any groups.</p>
                             {% endif %}
                         </div>
-                    </div>
-                    <div class="row">
-                        <h5>Reports</h5>
-                        {% if user_reports_list %}
-                            <ul class="collection">
-                                {% for report in user_reports_list %}
-                                <li class = "collection-item"><a href="{% url 'report' report.id %}">{{ report.title }}</a> </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>You have no reports.</p>
-                        {% endif %}
-                    <a class="btn" href="{% url 'new_report' %}">New Report</a>
-                    </div>
-                    <div class="row">
-                        <h5>Groups</h5>
-                        {% if groups %}
-                            <ul class="collection">
-                                {% for group in groups %}
-                                <li class = "collection-item"><a href="{% url 'group' group.id %}">{{ group.name }}</a></li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>You aren't in any groups.</p>
+                        {% if user.admin_status %}
+                            <div class="row">
+                                <h5>Admin Functions</h5>
+                                <a class="btn" href="{% url 'make_admin_list' %}">Make Admin</a>
+                                <a class="btn" href="{% url 'manage_groups' %}">Manage Groups</a>
+                            </div>
                         {% endif %}
                     </div>
-                    {% if user.admin_status %}
-                        <div class="row">
-                            <h5>Admin Functions</h5>
-
-                            <a class="btn" href="{% url 'make_admin_list' %}">Make Admin</a>
-                        </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

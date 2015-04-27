@@ -1,0 +1,26 @@
+{% extends 'SecureWitness/loggedinbase.html' %}
+{% block main %}
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+                <div class="container">
+                    {% if folders %}
+                        <h5>Pick a Folder</h5>
+                        <ul class="collection">
+                            {% for folder in folders %}
+                            <li class = "collection-item black-text">
+                                <a href="{% url 'folder' folder.id %}">{{ folder.name }}</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="center">No Folders.</p>
+                    {% endif %}
+                    <a class="btn" href="{% url 'new_folder' %}">Make Folder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

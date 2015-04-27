@@ -28,7 +28,7 @@
                             <div class="collapsible-body">
                                 <ul>
                                     {% for report in share_reports %}
-                                        <li class = "collection-item"><a href="{% url 'group_share_report' group.id report.id %}">{{ report.title }}</a> </li>
+                                        <li class = "collection-item" style="margin-left: 5px"><a href="{% url 'group_share_report' group.id report.id %}">{{ report.title }}</a> </li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -38,7 +38,7 @@
                     {% endif %}
                     </div>
                     <div class="row">
-                        <h5>Users</h5>
+                        <h5>Other Users</h5>
                         {% if users %}
                             <ul class="collection">
                                 {% for user in users %}
@@ -50,12 +50,11 @@
                         {% endif %}
                         {% if add_users %}
                             <div class="collapsible" data-collapsible="accordion">
-                                <div class="collapsible-header"><i class="mdi-action-list"></i>Share Report</div>
+                                <div class="collapsible-header"><i class="mdi-action-list"></i>Add User</div>
                                 <div class="collapsible-body">
                                     <ul>
                                         {% for user in add_users %}
                                             <li style="margin-left: 5px;"><a href="{% url 'group_add_user' group.id user.id %}">{{ user.name }}</a></li>
-                                            <div class="divider" style="margin-bottom: 5px;"></div>
                                         {% endfor %}
                                     </ul>
                                 </div>

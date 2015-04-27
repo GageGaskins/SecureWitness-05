@@ -1,0 +1,36 @@
+{% extends 'SecureWitness/loggedinbase.html' %}
+{% block main %}
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+                <div class="container">
+                    <div class="row">
+                        <div class="left">
+                            <h3 class="row">{{ folder.name }}</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <h5>Reports</h5>
+                        {% if reports %}
+                            <ul class="collection">
+                                {% for report in reports %}
+                                <li class = "collection-item"><a href="{% url 'report' report.id %}">{{ report.title }}</a> </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>This folder has no reports.</p>
+                        {% endif %}
+                    <a class="btn" href="{% url 'folder_add_report_list' folder.id %}">Add Report to Folder</a>
+                    <a class="btn" href="{% url 'folder_remove_report_list' folder.id %}">Remove Report from Folder</a>
+                    </div>
+                <div class="row">
+                    <a class="btn" href="{% url 'edit_folder_page' folder.id %}">Edit Folder</a>
+                    <a class="btn" href="{% url 'delete_folder' folder.id %}">Delete Folder</a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

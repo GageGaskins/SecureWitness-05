@@ -1,0 +1,25 @@
+{% extends 'SecureWitness/loggedinbase.html' %}
+{% block main %}
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+                <div class="container">
+                    {% if reports %}
+                        <h5>Pick a Report</h5>
+                        <ul class="collection">
+                            {% for report in reports %}
+                            <li class = "collection-item black-text">
+                                <a href="{% url 'folder_remove_report' folder.id report.id %}">{{ report.title }}</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="center">No Reports to Remove.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
