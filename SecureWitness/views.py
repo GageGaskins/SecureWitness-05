@@ -249,6 +249,10 @@ def update_report(request, report_id):
 
     return HttpResponseRedirect(reverse('report', args=(report_id,)))
 
+def delete_report(request, report_id):
+    targetreport = get_object_or_404(Report, pk=report_id)
+    targetreport.delete()
+    return HttpResponseRedirect(reverse('user'))
 
 def make_comment(request, report_id):
     if request.method == "POST":
