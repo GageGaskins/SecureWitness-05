@@ -11,6 +11,7 @@ class User(models.Model):
     def __str__(self):
         return self.name
 
+
 class Folder(models.Model):
     owner = models.CharField(max_length=120)
     title = models.CharField(max_length=120)
