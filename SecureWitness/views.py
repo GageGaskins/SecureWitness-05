@@ -74,6 +74,13 @@ def group_add_user(request, group_id, user_id):
     destination.users.add(new_member)
     return HttpResponseRedirect(reverse('group', args=(group_id,)))
 
+def add_to_folder(request, folder_id, report_id):
+    filedreport = get_object_or_404(Report, pk=report_id)
+    destination = get_object_or_404(Folder, pk=folder_id)
+
+    filedreport.folder = destination
+    return render(request, 'SecureWitness/user.html', {'create_error': 'Error in creating report'})
+
 
 def report(request, report_id):
     current_report = get_object_or_404(Report, pk=report_id)
