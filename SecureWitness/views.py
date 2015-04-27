@@ -12,6 +12,16 @@ from .forms import DocumentForm
 
 # Create your views here.
 
+def init(request):
+
+    if not list(User.objects.all()):
+
+        hash_pass = SHA256.new(str.encode('password')).hexdigest()
+        admin = User(name='Admin', email='admin@email.com', password=hash_pass, admin_status=True)
+        admin.save()
+        return HttpResponseRedirect(reverse('index'))
+    else:
+        return HttpResponseRedirect(reverse('index'))
 
 def index(request):
     return render(request, 'SecureWitness/index.html', {})
