@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from django.template import RequestContext, loader
 from django.http import HttpResponse
 
-from .models import Report, User, Document, Group, Comment
+from .models import Report, User, Document, Group, Comment, Folder
 from .forms import DocumentForm
 
 # Create your views here.

@@ -12,13 +12,6 @@ class User(models.Model):
         return self.name
 
 
-class Folder(models.Model):
-    owner = models.CharField(max_length=120)
-    title = models.CharField(max_length=120)
-
-    def __str__(self):
-        return self.title
-
 class Report(models.Model):
     author = models.CharField(max_length=120)
     title = models.CharField(max_length=120)
@@ -29,11 +22,19 @@ class Report(models.Model):
     location = models.CharField(max_length=120, default="")
     report_date = models.CharField(max_length=120, default="")
     keywords = models.CharField(max_length=256, default="")
-    folder = models.ForeignKey('Folder', default="")
     owner = models.ForeignKey('User')
 
     def __str__(self):
         return self.title
+
+
+class Folder(models.Model):
+    name = models.CharField(max_length=120, default="")
+    owner = models.ForeignKey('User')
+    reports = models.ManyToManyField('Report')
+
+    def __str__(self):
+        return self.name
 
 
 class Group(models.Model):
