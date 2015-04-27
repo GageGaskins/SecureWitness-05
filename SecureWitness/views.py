@@ -304,7 +304,10 @@ def login(request):
         if temp_user.password == hash_pass:
             user_info = model_to_dict(temp_user)
             request.session['curr_user'] = user_info
-            return HttpResponseRedirect(reverse('user'))
+            if user_info['active_status']:
+                return HttpResponseRedirect(reverse('user'))
+            else:
+                return render(request, 'SecureWitness/index.html', {'login_error_message': "Your account is suspended."})
         else:
             return render(request, 'SecureWitness/index.html', {'login_error_message': "Invalid login."})
 
@@ -341,10 +344,28 @@ def create_report(request):
 
 
 def search(request):
+
+    user_info = request.session['curr_user']
+    curr_user = get_object_or_404(User, pk=user_info['id'])
+
     if request.method == 'POST':
         query = request.POST['search'].lower()
         terms = query.split(" ")
-        all_reports = Report.objects.all()
+        if curr_user.admin_status:
+            all_reports = Report.objects.all()
+        else:
+            all_reports = list(Report.objects.filter(private=False))
+            my_reports = list(curr_user.report_set.all())
+
+            for report in my_reports:
+                if report not in all_reports:
+                    all_reports.append(report)
+
+            for group in curr_user.group_set.all():
+                for report in list(group.reports.all()):
+                    if report not in all_reports:
+                        all_reports.append(report)
+
         returned_reports = []
 
         for report in all_reports:
@@ -385,6 +406,9 @@ def get_doc(request, docname):
     response['Content-Disposition'] = 'attachment; filename=' + docname
     return response
 
+def manage_users(request):
+    return render(request, 'SecureWitness/manage_users.html', {})
+
 
 def make_admin_list(request):
     users = User.objects.filter(admin_status=False)
@@ -398,6 +422,17 @@ def make_admin(request, user_id):
     new_admin.save()
 
     return HttpResponseRedirect(reverse('user'))
+
+def suspend_user_list(request):
+    users = User.objects.filter(active_status=True, admin_status=False)
+    return render(request, 'SecureWitness/suspend_admin_list.html', {'users': users})
+
+def suspend_user(request, user_id):
+    suspended_user = User.objects.get(pk=user_id)
+    suspended_user.active_status = False
+    suspended_user.save()
+    return HttpResponseRedirect(reverse('manage_users'))
+
 
 def manage_groups(request):
 
