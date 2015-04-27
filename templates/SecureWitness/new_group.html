@@ -1,0 +1,22 @@
+{% extends 'SecureWitness/loggedinbase.html' %}
+{% block main %}
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col offset-l1 l10 s12 white z-depth-1">
+                <div class="container" style="width: 90%">
+                    <h3>Create Group</h3>
+                    <form action="{% url 'create_group' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-field">
+                            <input id="group_name" type="text" name="group_name" required>
+                            <label for="group_name">Name of Group</label>
+                        </div>
+                            <button class="btn left" type="submit">Create Group</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

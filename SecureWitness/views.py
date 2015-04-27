@@ -25,8 +25,14 @@ def user(request):
         user_reports_list = None
 
     user_groups = User.objects.get(pk=user['id']).group_set.all()
+    user_folders = list(Folder.objects.filter(owner=user['id']))
 
-    context = {'user_reports_list': user_reports_list, "user": user, 'groups': user_groups}
+    for folder in user_folders:
+        for report in list(folder.reports.all()):
+            user_reports_list = user_reports_list.exclude(pk=report.id)
+
+
+    context = {'user_reports_list': user_reports_list, "user": user, 'groups': user_groups, 'folders': user_folders}
     return render(request, 'SecureWitness/user.html', context)
 
 
@@ -35,16 +41,21 @@ def group(request, group_id):
     group_info = model_to_dict(curr_group)
     group_reports = curr_group.reports.all()
 
-    curr_user = request.session['curr_user']
+    user_info = request.session['curr_user']
+    curr_user = get_object_or_404(User, pk=user_info['id'])
 
-    share_reports = Report.objects.all()
+    share_reports = Report.objects.filter(owner=curr_user)
 
     for report in group_reports:
         share_reports = share_reports.exclude(pk=report.id)
 
-    group_users = curr_group.users.exclude(pk=curr_user['id'])
+    group_users = curr_group.users.exclude(pk=user_info['id'])
 
     add_users = User.objects.all()
+
+    if user_info['admin_status']:
+        add_users = add_users.exclude(pk=user_info['id'])
+
     filter_users = curr_group.users.all()
 
     for user in filter_users:
@@ -57,10 +68,7 @@ def group(request, group_id):
 
 def group_share_report(request, group_id, report_id):
     shared_report = get_object_or_404(Report, pk=report_id)
-    print(shared_report)
     destination = get_object_or_404(Group, pk=group_id)
-
-    print(destination)
 
     destination.reports.add(shared_report)
 
@@ -74,12 +82,95 @@ def group_add_user(request, group_id, user_id):
     destination.users.add(new_member)
     return HttpResponseRedirect(reverse('group', args=(group_id,)))
 
-def add_to_folder(request, folder_id, report_id):
-    filedreport = get_object_or_404(Report, pk=report_id)
-    destination = get_object_or_404(Folder, pk=folder_id)
 
-    filedreport.folder = destination
-    return render(request, 'SecureWitness/user.html', {'create_error': 'Error in creating report'})
+def folder_add_report_list(request, folder_id):
+
+    user_info = request.session['curr_user']
+    curr_user = User.objects.get(pk=user_info['id'])
+    curr_folder = Folder.objects.get(pk=folder_id)
+    folder_reports = list(curr_folder.reports.all())
+    add_reports = curr_user.report_set.all()
+
+    for folder in folder_reports:
+        add_reports = add_reports.exclude(pk=folder.id)
+
+    return render(request, 'SecureWitness/folder_add_report_list.html', {'reports': add_reports, 'folder': model_to_dict(curr_folder)})
+
+
+def folder_remove_report_list(request, folder_id):
+    curr_folder = Folder.objects.get(pk=folder_id)
+    folder_reports = curr_folder.reports.all()
+
+    return render(request, 'SecureWitness/folder_remove_report_list.html', {'reports': folder_reports, 'folder': model_to_dict(curr_folder)})
+
+
+def folder_remove_report(request, folder_id, report_id):
+    curr_folder = Folder.objects.get(pk=folder_id)
+    removed_report = Report.objects.get(pk=report_id)
+    curr_folder.reports.remove(removed_report)
+    return HttpResponseRedirect(reverse('folder', args=(folder_id,)))
+
+
+def folder_add_report(request, folder_id, report_id):
+
+    curr_folder = Folder.objects.get(pk=folder_id)
+    added_report = Report.objects.get(pk=report_id)
+
+    curr_folder.reports.add(added_report)
+
+    return HttpResponseRedirect(reverse('folder', args=(folder_id,)))
+
+
+def folder(request, folder_id):
+
+    folder = get_object_or_404(Folder, pk=folder_id)
+    reports = folder.reports.all()
+
+    curr_folder = model_to_dict(folder)
+    return render(request, 'SecureWitness/folder.html', {'reports': reports, 'folder': curr_folder})
+
+
+def manage_folders(request):
+    user_info = request.session['curr_user']
+
+    folders = get_object_or_404(User, pk=user_info['id']).folder_set.all()
+
+    return render(request, 'SecureWitness/manage_folders.html', {'folders': folders})
+
+
+def new_folder(request):
+    return render(request, 'SecureWitness/new_folder.html', {})
+
+
+def create_folder(request):
+
+    user_info = request.session['curr_user']
+    folder_name = request.POST['folder_name']
+    new_folder = Folder(name=folder_name, owner=User.objects.get(pk=user_info['id']))
+    new_folder.save()
+    return HttpResponseRedirect(reverse('manage_folders'))
+
+
+def edit_folder_page(request, folder_id):
+    curr_folder = Folder.objects.get(pk=folder_id)
+
+    return render(request, 'SecureWitness/edit_folder_page.html', {'folder': curr_folder})
+
+
+def update_folder(request, folder_id):
+    curr_folder = Folder.objects.get(pk=folder_id)
+    curr_folder.name = request.POST['folder_name']
+    curr_folder.save()
+
+    return HttpResponseRedirect(reverse('folder', args=(folder_id,)))
+
+
+def delete_folder(request, folder_id):
+
+    curr_folder = Folder.objects.get(pk=folder_id)
+    curr_folder.delete()
+
+    return HttpResponseRedirect(reverse('manage_folders'))
 
 
 def report(request, report_id):
@@ -89,6 +180,27 @@ def report(request, report_id):
     user = request.session['curr_user']
     context = {"report": current_report, 'user': user, 'comments': report_comments}
     return render(request, 'SecureWitness/report.html', context)
+
+
+def reports(request):
+    user_info = request.session['curr_user']
+    curr_user = get_object_or_404(User, pk=user_info['id'])
+    if user_info['admin_status']:
+        all_reports = list(Report.objects.all())
+        return render(request, 'SecureWitness/search.html', {'reports': all_reports})
+    else:
+        all_reports = list(Report.objects.filter(private=False))
+
+    for report in list(curr_user.report_set.all()):
+        if report not in all_reports:
+            all_reports.append(report)
+
+    for group in curr_user.group_set.all():
+        for report in group.reports.all():
+            if report not in all_reports:
+                all_reports.append(report)
+
+    return render(request, 'SecureWitness/search.html', {'reports': all_reports})
 
 
 def edit_report_page(request, report_id):
@@ -234,7 +346,7 @@ def search(request):
     return render(request, 'SecureWitness/search.html', {'reports': returned_reports})
 
 
-def list(request):
+def doc_list(request):
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -276,6 +388,25 @@ def make_admin(request, user_id):
     new_admin.save()
 
     return HttpResponseRedirect(reverse('user'))
+
+def manage_groups(request):
+
+    all_groups = Group.objects.all()
+
+    return render(request, 'SecureWitness/manage_groups.html', {'groups': all_groups})
+
+def new_group(request):
+
+    return render(request, 'SecureWitness/new_group.html', {})
+
+def create_group(request):
+    if request.method == 'POST':
+        group_name = request.POST['group_name']
+        new_group = Group(name=group_name)
+        new_group.save()
+
+        return HttpResponseRedirect(reverse('manage_groups'))
+    return HttpResponseRedirect(reverse('manage_groups'))
 
 
 def logout(request):
