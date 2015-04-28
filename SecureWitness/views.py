@@ -85,6 +85,23 @@ def group_share_report(request, group_id, report_id):
     return HttpResponseRedirect(reverse('group', args=(group_id,)))
 
 
+def group_remove_report_list(request, group_id):
+
+    user_info = request.session['curr_user']
+    curr_group = get_object_or_404(Group, pk=group_id)
+    if user_info['admin_status']:
+        group_reports = get_object_or_404(Group, pk=group_id).reports.all()
+    else:
+        group_reports = curr_group.reports.filter(owner=user_info['id'])
+    return render(request, 'SecureWitness/group_remove_report_list.html', {'reports': group_reports, 'group': curr_group})
+
+def group_remove_report(request, group_id, report_id):
+    curr_group = Group.objects.get(pk=group_id)
+    removed_report = Report.objects.get(pk=report_id)
+    curr_group.reports.remove(removed_report)
+    return HttpResponseRedirect(reverse('group', args=(group_id,)))
+
+
 def group_add_user(request, group_id, user_id):
     new_member = get_object_or_404(User, pk=user_id)
     destination = get_object_or_404(Group, pk=group_id)
@@ -425,12 +442,22 @@ def make_admin(request, user_id):
 
 def suspend_user_list(request):
     users = User.objects.filter(active_status=True, admin_status=False)
-    return render(request, 'SecureWitness/suspend_admin_list.html', {'users': users})
+    return render(request, 'SecureWitness/suspend_user_list.html', {'users': users})
 
 def suspend_user(request, user_id):
     suspended_user = User.objects.get(pk=user_id)
     suspended_user.active_status = False
     suspended_user.save()
+    return HttpResponseRedirect(reverse('manage_users'))
+
+def activate_user_list(request):
+    users = User.objects.filter(active_status=False, admin_status=False)
+    return render(request, 'SecureWitness/activate_user_list.html', {'users': users})
+
+def activate_user(request, user_id):
+    activated_user = get_object_or_404(User, pk=user_id)
+    activated_user.active_status = True
+    activated_user.save()
     return HttpResponseRedirect(reverse('manage_users'))
 
 

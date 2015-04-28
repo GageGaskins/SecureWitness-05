@@ -6,8 +6,11 @@
             <div class="col offset-l1 l10 s12 white z-depth-1">
                 <div class="container">
                     <h5>Pick a Function</h5>
-                    <a class="btn" href="{% url 'make_admin_list' %}">Make Admin</a>
-                    <a class="btn" href="{% url 'suspend_user_list' %}">Suspend User</a>
+                        <div class="row">
+                            <a class="btn" href="{% url 'make_admin_list' %}">Make Admin</a>
+                            <a class="btn" href="{% url 'suspend_user_list' %}">Suspend User</a>
+                            <a class="btn" href="{% url 'activate_user_list' %}">Activate User</a>
+                        </div>
                 </div>
             </div>
         </div>

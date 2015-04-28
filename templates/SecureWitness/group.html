@@ -19,6 +19,7 @@
                                 <li class = "collection-item"><a href="{% url 'report' report.id %}">{{ report.title }}</a> </li>
                                 {% endfor %}
                             </ul>
+                            <a class="btn" href="{% url 'group_remove_report_list' group.id %}">Remove Report</a>
                         {% else %}
                             <p>This group has no shared reports.</p>
                         {% endif %}
